@@ -1,14 +1,7 @@
 from fastapi import FastAPI
 from datetime import datetime
 import zoneinfo
-from pydantic import BaseModel
-
-
-class Customer(BaseModel):
-    name: str
-    description: str | None
-    email: str
-    age: int
+from models import Customer, Transaction, Invoice, CustomerCreate
 
 
 app = FastAPI()
@@ -44,6 +37,27 @@ async def get_time(iso_code: str):
     return {"time": datetime.now(zoneinfo.ZoneInfo(timezone))}
 
 
-@app.post("/customers")
-async def create_customer(customer: Customer):
+db_customers: list[Customer] = []
+
+
+@app.post("/customers", response_model=Customer)
+async def create_customer(customer_data: CustomerCreate):
+    customer = Customer.model_validate(customer_data.model_dump())
+    db_customers.append(customer)
+    customer.id = len(db_customers)
     return customer
+
+
+@app.get("/customers", response_model=list[Customer])
+async def list_customers():
+    return db_customers
+
+
+@app.post("/transactions")
+async def create_transaction(transaction: Transaction):
+    return transaction
+
+
+@app.post("/invoices")
+async def create_invoice(invoice: Invoice):
+    return invoice
