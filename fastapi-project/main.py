@@ -1,6 +1,15 @@
 from fastapi import FastAPI
 from datetime import datetime
 import zoneinfo
+from pydantic import BaseModel
+
+
+class Customer(BaseModel):
+    name: str
+    description: str | None
+    email: str
+    age: int
+
 
 app = FastAPI()
 
@@ -33,3 +42,8 @@ async def get_time(iso_code: str):
         return {"error": "Country not found"}
 
     return {"time": datetime.now(zoneinfo.ZoneInfo(timezone))}
+
+
+@app.post("/customers")
+async def create_customer(customer: Customer):
+    return customer
