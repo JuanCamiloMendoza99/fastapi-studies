@@ -53,6 +53,11 @@ async def list_customers():
     return db_customers
 
 
+@app.get("/customers/{customer_id}", response_model=Customer)
+async def get_customer_by_id(customer_id: int):
+    return next((x for x in db_customers if x.id == customer_id), None)
+
+
 @app.post("/transactions")
 async def create_transaction(transaction: Transaction):
     return transaction
