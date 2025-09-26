@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from datetime import datetime
 import zoneinfo
-from models import Customer, Transaction, Invoice, CustomerCreate
-from db import SessionDependency
+from models import Transaction, Invoice
+from db import create_all_tables
+from .routers import customers
 
 
-app = FastAPI()
+app = FastAPI(lifespan=create_all_tables)
+app.include_router(customers.router)
 
 
 @app.get("/")
@@ -36,27 +38,6 @@ async def get_time(iso_code: str):
         return {"error": "Country not found"}
 
     return {"time": datetime.now(zoneinfo.ZoneInfo(timezone))}
-
-
-db_customers: list[Customer] = []
-
-
-@app.post("/customers", response_model=Customer)
-async def create_customer(customer_data: CustomerCreate, session: SessionDependency):
-    customer = Customer.model_validate(customer_data.model_dump())
-    db_customers.append(customer)
-    customer.id = len(db_customers)
-    return customer
-
-
-@app.get("/customers", response_model=list[Customer])
-async def list_customers():
-    return db_customers
-
-
-@app.get("/customers/{customer_id}", response_model=Customer)
-async def get_customer_by_id(customer_id: int):
-    return next((x for x in db_customers if x.id == customer_id), None)
 
 
 @app.post("/transactions")

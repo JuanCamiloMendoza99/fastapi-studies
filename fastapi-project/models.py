@@ -1,11 +1,11 @@
-from pydantic import BaseModel, NameEmail
-from sqlmodel import SQLModel
+from pydantic import BaseModel
+from sqlmodel import SQLModel, Field
 
 
 class CustomerBase(SQLModel):
     name: str
     description: str | None
-    email: NameEmail
+    email: str
     age: int
 
 
@@ -13,8 +13,12 @@ class CustomerCreate(CustomerBase):
     pass
 
 
+class CustomerUpdate(CustomerBase):
+    pass
+
+
 class Customer(CustomerBase, table=True):
-    id: int | None = None
+    id: int | None = Field(default=None, primary_key=True)
 
 
 class Transaction(BaseModel):
