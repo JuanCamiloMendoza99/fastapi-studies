@@ -2,9 +2,7 @@ from fastapi import FastAPI
 from datetime import datetime
 import zoneinfo
 from db import create_all_tables
-from .routers import customers
-from .routers import invoices
-from .routers import transactions
+from .routers import customers, invoices, transactions
 
 
 app = FastAPI(lifespan=create_all_tables)
