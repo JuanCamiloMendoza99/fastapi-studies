@@ -9,17 +9,25 @@ from models import (
 )
 from db import SessionDependency
 from sqlmodel import select
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(tags=["Customers"])
 
 
 @router.post("/customers", response_model=Customer)
 async def create_customer(customer_data: CustomerCreate, session: SessionDependency):
-    customer = Customer.model_validate(customer_data.model_dump())
-    session.add(customer)
-    session.commit()
-    session.refresh(customer)
-    return customer
+    try:
+        customer_data_dict = customer_data.model_dump()
+        customer = Customer.model_validate(customer_data_dict)
+        session.add(customer)
+        session.commit()
+        session.refresh(customer)
+        return customer
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
+        )
 
 
 @router.get("/customers", response_model=list[Customer])

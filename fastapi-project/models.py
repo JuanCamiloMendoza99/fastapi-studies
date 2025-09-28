@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
 
@@ -28,7 +28,7 @@ class Plan(SQLModel, table=True):
 class CustomerBase(SQLModel):
     name: str
     description: str | None
-    email: str
+    email: EmailStr = Field(unique=True)
     age: int
 
 
