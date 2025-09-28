@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 router = APIRouter(tags=["Customers"])
 
 
-@router.post("/customers", response_model=Customer)
+@router.post("/customers", response_model=Customer, status_code=status.HTTP_201_CREATED)
 async def create_customer(customer_data: CustomerCreate, session: SessionDependency):
     try:
         customer_data_dict = customer_data.model_dump()
